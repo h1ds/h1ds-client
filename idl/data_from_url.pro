@@ -46,14 +46,25 @@ PRO data_from_url, data, url
 
    data = OBJ_NEW('h1mdsdata', LONG(element_list[0]), element_list[1], element_list[2], element_list[3])
    
-   IF data_type EQ 'signal' THEN BEGIN
-      oElementText = oElement->getFirstChild()
-      signal_url = oElementText->getNodeValue()
-      signal_from_binary_url, timebase, signal, units, signal_url
-      signal_struct = CREATE_STRUCT('timebase', timebase, 'signal', signal, 'timebase_units', units[0], 'signal_units', units[1])
-      data->setdata, signal_struct
-   ENDIF
-
+   CASE data_type OF
+      'signal': BEGIN
+         oElementText = oElement->getFirstChild()
+         signal_url = oElementText->getNodeValue()
+         signal_from_binary_url, dim, signal, units, signal_url
+         signal_struct = CREATE_STRUCT('dim', dim, 'signal', signal, 'dim_units', units[0], 'signal_units', units[1])
+         data->setdata, signal_struct
+      END
+      'scalar': BEGIN
+         oElementText = oElement->getFirstChild()
+         d = oElementText->getNodeValue()
+         data->setdata, d         
+      END
+      'text': BEGIN
+         oElementText = oElement->getFirstChild()
+         d = oElementText->getNodeValue()
+         data->setdata, d         
+      END
+   ENDCASE
 
    OBJ_DESTROY, oNodeList
    OBJ_DESTROY, oElement

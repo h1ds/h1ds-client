@@ -6,7 +6,7 @@ FUNCTION Url_Callback, status, progress, data
 END
 
 ;-----------------------------------------------------------------
-PRO signal_from_binary_url, timebase, signal, units, url
+PRO signal_from_binary_url, dim, signal, units, url
 
 
    ; If the url object throws an error it will be caught here
@@ -63,16 +63,16 @@ PRO signal_from_binary_url, timebase, signal, units, url
    openr, 1, FILEPATH(temp_filename, /TMP), /DELETE
    tmp_output = read_binary(1, data_type=2)
    close, 1
-   ;;;;;;;;;;; read HTTP headers for calibration and timebase
+   ;;;;;;;;;;; read HTTP headers for calibration and dim (e.g. timebase)
 
    oUrl->GetProperty, RESPONSE_HEADER = headers
 
    header_strings = ['X-H1DS-signal-min: ',    $ 
                      'X-H1DS-signal-delta: ',  $
-                     'X-H1DS-timebase-t0: ',   $
-                     'X-H1DS-timebase-delta: ',$
-                     'X-H1DS-timebase-length: ',$
-                     'X-H1DS-timebase-units: ',   $
+                     'X-H1DS-dim-t0: ',   $
+                     'X-H1DS-dim-delta: ',$
+                     'X-H1DS-dim-length: ',$
+                     'X-H1DS-dim-units: ',   $
                      'X-H1DS-signal-units: ']
    header_data = ['','','','','','','']
    
@@ -95,7 +95,7 @@ PRO signal_from_binary_url, timebase, signal, units, url
 
 
    signal = FLOAT(header_data[1])*tmp_output + FLOAT(header_data[0])
-   timebase = FLOAT(header_data[3])*FINDGEN(FLOAT(header_data[4])) + FLOAT(header_data[2])
+   dim = FLOAT(header_data[3])*FINDGEN(FLOAT(header_data[4])) + FLOAT(header_data[2])
    units = [header_data[5], header_data[6]]
 
    ; Destroy the url object

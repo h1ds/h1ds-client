@@ -46,7 +46,7 @@ PRO h1mdsdata::plot
      ; TODO check data type, don't break if we don't have signal struct
      signal_struc = *(self.ptr)
      title = STRJOIN([STRING(self.shot), ' ', self.path,  ' ', '(', self.shottime, ')'])
-     plot, signal_struc.timebase, signal_struc.signal, TITLE=title, XTITLE=signal_struc.timebase_units, YTITLE=signal_struc.signal_units
+     plot, signal_struc.dim, signal_struc.signal, TITLE=title, XTITLE=signal_struc.dim_units, YTITLE=signal_struc.signal_units
   ENDIF
   
   RETURN
