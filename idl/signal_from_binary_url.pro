@@ -59,10 +59,6 @@ PRO signal_from_binary_url, dim, signal, units, url
    openw, 1, FILEPATH(temp_filename, /TMP)
    writeu, 1, tmp_buffer
    close, 1
-   ; Read the file back in as binary
-   openr, 1, FILEPATH(temp_filename, /TMP), /DELETE
-   tmp_output = read_binary(1, data_type=2)
-   close, 1
    ;;;;;;;;;;; read HTTP headers for calibration and dim (e.g. timebase)
 
    oUrl->GetProperty, RESPONSE_HEADER = headers
@@ -73,8 +69,9 @@ PRO signal_from_binary_url, dim, signal, units, url
                      'X-H1DS-dim-delta: ',$
                      'X-H1DS-dim-length: ',$
                      'X-H1DS-dim-units: ',   $
-                     'X-H1DS-signal-units: ']
-   header_data = ['','','','','','','']
+                     'X-H1DS-signal-units: ', $
+                     'X-H1DS-signal-dtype: ']
+   header_data = ['','','','','','','', '']
    
    ;;; Use regex to find the headers
    FOR head_i=0,4 DO BEGIN
@@ -85,13 +82,25 @@ PRO signal_from_binary_url, dim, signal, units, url
       
    ENDFOR
 
-   FOR head_i=5,6 DO BEGIN
+   FOR head_i=5,7 DO BEGIN
 
       h_str = header_strings[head_i]
-      pos = STREGEX(headers, STRJOIN([h_str, '[a-zA-Z]+']), length=len)
+      pos = STREGEX(headers, STRJOIN([h_str, '[a-zA-Z0-9]+']), length=len)
       header_data[head_i] = STRMID(headers, pos+STRLEN(h_str), len-STRLEN(h_str))
       
    ENDFOR
+
+   CASE header_data[7] OF
+      'int16': SIG_DTYPE=2
+      'uint16': SIG_DTYPE=12
+      'int32': SIG_DTYPE=3
+      ELSE: PRINT, 'Error: Unknown data type' 
+   ENDCASE
+        
+   ; Read the file back in as binary
+   openr, 1, FILEPATH(temp_filename, /TMP), /DELETE
+   tmp_output = read_binary(1, data_type=SIG_DTYPE)
+   close, 1
 
 
    signal = FLOAT(header_data[1])*tmp_output + FLOAT(header_data[0])
