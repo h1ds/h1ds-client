@@ -3,7 +3,7 @@ PRO data_from_mds, data, tree, path, shot
 
   query = '?shot='+STRING(shot, FORMAT='(I5)')+'&mds-tree='+tree+'&mds-path='+path
 
-  url = 'http://h1svr.anu.edu.au/mdsplus/request_url'+query
+  url = 'http://h1svr.anu.edu.au/mdsplus/_/request_url'+query
 
   oXMLDoc = OBJ_NEW('IDLffXMLDOMDocument', FILENAME=url)
   oData = oXMLDoc->getFirstChild()
