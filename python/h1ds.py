@@ -133,7 +133,7 @@ def data_from_mds(mds_tree, mds_path, shot_number):
     query = '?shot=%(shot)d&mds-tree=%(mds_tree)s&mds-path=%(mds_path)s' %{'shot':int(shot_number),
                                                                           'mds_tree':mds_tree,
                                                                           'mds_path':mds_path}
-    url = 'http://h1svr.anu.edu.au/mdsplus/request_url'+query
+    url = 'http://h1svr.anu.edu.au/mdsplus/_/request_url'+query
     xml_doc = minidom.parse(urlopen(url))
     mds_url_path = simple_xml_value(xml_doc, 'mds_url')
     mds_url = 'http://h1svr.anu.edu.au'+mds_url_path
