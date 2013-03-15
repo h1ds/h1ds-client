@@ -1,8 +1,8 @@
 PRO h1ds_latest_shot
 
-   oXMLDoc = OBJ_NEW('IDLffXMLDOMDocument', FILENAME='http://h1svr.anu.edu.au/summary/latest_shot/?view=xml')
+   oXMLDoc = OBJ_NEW('IDLffXMLDOMDocument', FILENAME='http://h1svr.anu.edu.au/mdsplus/_/latest_shot/?view=xml')
    
-   oNodeList = oXMLDoc->getElementsByTagName('number')
+   oNodeList = oXMLDoc->getElementsByTagName('shot_number')
    oNode = oNodeList->Item(0)
    oChild = oNode->getFirstChild()
 
