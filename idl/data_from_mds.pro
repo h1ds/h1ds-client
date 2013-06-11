@@ -1,7 +1,7 @@
 
 PRO data_from_mds, data, tree, path, shot
 
-  query = '?shot='+STRING(shot, FORMAT='(I5)')+'&mds-tree='+tree+'&mds-path='+path
+  query = '?shot='+STRING(shot, FORMAT='(I5)')+'&tree='+tree+'&path='+path
 
   url = 'http://h1svr.anu.edu.au/data/_/request_url'+query
 
