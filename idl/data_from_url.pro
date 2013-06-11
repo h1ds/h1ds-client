@@ -1,9 +1,9 @@
 
 PRO data_from_url, data, url
 
-  ; Let's add the view=xml HTTP GET query to make sure we get XML
+  ; Let's add the format=xml HTTP GET query to make sure we get XML
                                 ; it doesn't matter if another
-                                ; view is requested, if there
+                                ; format is requested, if there
                                 ; are multiple GET queries then the
                                 ; last one is used.
   url_parts = PARSE_URL(url)
@@ -16,9 +16,9 @@ PRO data_from_url, data, url
      IF STRPOS(url_parts.path, '/', /REVERSE_SEARCH) NE STRLEN(url_parts.path)-1 THEN BEGIN
         url = STRJOIN([url, '/'])
      ENDIF
-     url = STRJOIN([url, 'view=xml'], '?')
+     url = STRJOIN([url, 'format=xml'], '?')
   ENDIF ELSE BEGIN  ; if there are already some queries...
-     url = STRJOIN([url, 'view=xml'], '&')
+     url = STRJOIN([url, 'format=xml'], '&')
   ENDELSE
 
    oXMLDoc = OBJ_NEW('IDLffXMLDOMDocument', FILENAME=url)
