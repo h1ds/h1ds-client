@@ -8,7 +8,7 @@ PRO data_from_mds, data, tree, path, shot
   oXMLDoc = OBJ_NEW('IDLffXMLDOMDocument', FILENAME=url)
   oData = oXMLDoc->getFirstChild()
 
-  oNodeList = oData->getElementsByTagName('mds_url')      
+  oNodeList = oData->getElementsByTagName('url')
   oElement = oNodeList->Item(0)
   oElementText = oElement->getFirstChild()
   mds_url_path = oElementText->getNodeValue()
