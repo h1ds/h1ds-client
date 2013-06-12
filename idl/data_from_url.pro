@@ -9,7 +9,7 @@ PRO data_from_url, data, url
   url_parts = PARSE_URL(url)
 
   ; if there are no GET queries
-  IF STRLEN(url_parts.query) EQ 0 THEN BEGIN   
+  IF STRLEN(url_parts.query) EQ 0 THEN BEGIN
                                 ; IDL is crashing if we don't
                                 ; have a trailing slash before
                                 ; the query...
@@ -23,52 +23,43 @@ PRO data_from_url, data, url
 
    oXMLDoc = OBJ_NEW('IDLffXMLDOMDocument', FILENAME=url)
    
-   oData = oXMLDoc->getFirstChild()
+   oContent = oXMLDoc->getFirstChild()
    
    ; The simple (non-data) elements
-   element_name_list = ['shot_number', 'shot_time', 'mds_tree', 'mds_path']
-   element_list = ['','','','']
+   element_name_list = ['shot', 'tree', 'path']
+   element_list = ['','','']
    
    ; Extract the non-data elements from the XML document.
    FOR i=0, N_ELEMENTS(element_list)-1 DO BEGIN
-      oNodeList = oData->getElementsByTagName(element_name_list[i])      
+      oNodeList = oContent->getElementsByTagName(element_name_list[i])
       oElement = oNodeList->Item(0)
       oElementText = oElement->getFirstChild()
       element_list[i] = oElementText->getNodeValue()
    ENDFOR
 
-   ; Get the data type
-   oNodeList = oData->getElementsByTagName('data')      
-   oElement = oNodeList->Item(0)
-   oAttrList = oElement->getAttributes()
-   oType = oAttrList->getNamedItem('type')
-   data_type = oType->getNodeValue()
+   ; Get data
+   oData = (oContent->getElementsByTagName('data'))->Item(0)
+   oElementList = oData->getElementsByTagName('*')
+   data_length = oElementList->GetLength()
+   data_arr = MAKE_ARRAY(data_length, /FLOAT)
 
-   data = OBJ_NEW('h1mdsdata', LONG(element_list[0]), element_list[1], element_list[2], element_list[3])
-   
-   CASE data_type OF
-      'signal': BEGIN
-         oElementText = oElement->getFirstChild()
-         signal_url = oElementText->getNodeValue()
-         signal_from_binary_url, dim, signal, units, signal_url
-         signal_struct = CREATE_STRUCT('dim', dim, 'signal', signal, 'dim_units', units[0], 'signal_units', units[1])
-         data->setdata, signal_struct
-      END
-      'scalar': BEGIN
-         oElementText = oElement->getFirstChild()
-         d = oElementText->getNodeValue()
-         data->setdata, d         
-      END
-      'text': BEGIN
-         oElementText = oElement->getFirstChild()
-         d = oElementText->getNodeValue()
-         data->setdata, d         
-      END
-   ENDCASE
+   FOR I=0,(data_length-1) DO BEGIN
+      data_arr[I] = ((oElementList->Item(I))->getFirstChild())->getNodeValue()
+   ENDFOR
 
-   OBJ_DESTROY, oNodeList
-   OBJ_DESTROY, oElement
-   OBJ_DESTROY, oElementText
+   ; Get dim
+   oDim = (oContent->getElementsByTagName('dim'))->Item(0)
+   oElementList = oDim->getElementsByTagName('*')
+   dim_length = oElementList->GetLength()
+   dim_arr = MAKE_ARRAY(dim_length, /FLOAT)
+
+   FOR I=0,(dim_length-1) DO BEGIN
+      dim_arr[I] = ((oElementList->Item(I))->getFirstChild())->getNodeValue()
+   ENDFOR
+
+   signal_struct = CREATE_STRUCT('dim', dim_arr, 'signal', data_arr)
+   data = OBJ_NEW('h1mdsdata', LONG(element_list[0]), element_list[1], element_list[2])
+   data->setdata, signal_struct
 
    OBJ_DESTROY, oXMLDoc
 
